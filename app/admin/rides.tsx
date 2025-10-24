@@ -286,10 +286,10 @@ export default function AdminRidesPage() {
           return <Text style={styles.routeText}>N/A</Text>;
         }
         return (
-          <View>
+        <View>
             <Text style={styles.routeText}>{ride.from} → {ride.to}</Text>
             <Text style={styles.distanceText}>{ride.distance || 'N/A'}</Text>
-          </View>
+        </View>
         );
       },
     },
@@ -302,10 +302,10 @@ export default function AdminRidesPage() {
           return <Text style={styles.driverText}>N/A</Text>;
         }
         return (
-          <View>
+        <View>
             <Text style={styles.driverText}>{ride.driver.name || 'N/A'}</Text>
             <Text style={styles.ratingText}>⭐ {ride.driver.rating || 'N/A'}/5</Text>
-          </View>
+        </View>
         );
       },
     },
@@ -321,7 +321,7 @@ export default function AdminRidesPage() {
           <View>
             <Text style={styles.vehicleText}>{ride.vehicle.make || 'N/A'} {ride.vehicle.model || ''}</Text>
             <Text style={styles.licenseText}>{ride.vehicle.licensePlate || 'N/A'}</Text>
-          </View>
+        </View>
         );
       },
     },
@@ -337,7 +337,7 @@ export default function AdminRidesPage() {
           <View>
             <Text style={styles.passengerText}>{ride.passengers.length || 0}/{ride.vehicle.capacity || 0}</Text>
             <Text style={styles.ratingText}>⭐ {ride.averageRating || 'N/A'}/5</Text>
-          </View>
+        </View>
         );
       },
     },
@@ -352,7 +352,7 @@ export default function AdminRidesPage() {
         return (
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(ride.status) }]}>
             <Text style={styles.statusText}>{ride.status}</Text>
-          </View>
+        </View>
         );
       },
     },
@@ -395,6 +395,12 @@ export default function AdminRidesPage() {
     }
   };
 
+  const handleCreateRide = () => {
+    console.log('Creating new ride');
+    // Navigate to create ride page
+    router.push('/admin/rides/create' as any);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Completed': return '#10B981';
@@ -410,9 +416,14 @@ export default function AdminRidesPage() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.subtitle}>Manage and track all rides</Text>
-          <TouchableOpacity style={styles.exportButton} onPress={handleExportToExcel}>
-            <Text style={styles.exportButtonText}>📊 Export to Excel</Text>
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.createButton} onPress={handleCreateRide}>
+              <Text style={styles.createButtonText}>➕ Create Ride</Text>
+              </TouchableOpacity>
+            <TouchableOpacity style={styles.exportButton} onPress={handleExportToExcel}>
+              <Text style={styles.exportButtonText}>📊 Export to CSV</Text>
+            </TouchableOpacity>
+            </View>
         </View>
 
         {/* Stats Cards */}
@@ -420,20 +431,20 @@ export default function AdminRidesPage() {
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>156</Text>
             <Text style={styles.statLabel}>Total Rides</Text>
-            </View>
+          </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>89</Text>
             <Text style={styles.statLabel}>Completed</Text>
-            </View>
+                  </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>23</Text>
             <Text style={styles.statLabel}>In Progress</Text>
-          </View>
+                  </View>
           <View style={styles.statCard}>
             <Text style={styles.statNumber}>Rs 2456</Text>
             <Text style={styles.statLabel}>Avg. Revenue</Text>
-        </View>
-        </View>
+                  </View>
+                </View>
 
         {/* Rides Table */}
         <View style={styles.tableContainer}>
@@ -441,12 +452,12 @@ export default function AdminRidesPage() {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#3B82F6" />
               <Text style={styles.loadingText}>Loading rides...</Text>
-            </View>
+                        </View>
           ) : error ? (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>❌ {error}</Text>
               <Text style={styles.errorSubtext}>Please try again later</Text>
-            </View>
+                      </View>
           ) : (
             <DataTable
               columns={getTableColumns()}
@@ -456,7 +467,7 @@ export default function AdminRidesPage() {
             />
           )}
         </View>
-      </View>
+          </View>
     </AdminLayout>
   );
 }
@@ -475,6 +486,24 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: FontSizes.md,
     color: '#6B7280',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  createButton: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  createButtonText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
   },
   exportButton: {
     backgroundColor: '#10B981',

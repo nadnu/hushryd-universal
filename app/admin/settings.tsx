@@ -1,10 +1,12 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
+import ProtectedRoute from '../../components/admin/ProtectedRoute';
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
 import { BorderRadius, FontSizes, Shadows, Spacing } from '../../constants/Design';
+import { useAuth } from '../../contexts/AuthContext';
 import { AdminRole } from '../../types/models';
 
 const mockAdmin = {
@@ -17,6 +19,7 @@ const mockAdmin = {
 export default function AdminSettingsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const { admin, logout } = useAuth();
   
   const [settings, setSettings] = useState({
     notifications: true,
@@ -26,9 +29,6 @@ export default function AdminSettingsScreen() {
     twoFactorAuth: true,
   });
 
-  const handleLogout = () => {
-    router.replace('/(tabs)/');
-  };
 
   const handleSave = () => {
     Alert.alert('Success', 'Settings saved successfully!');
@@ -39,13 +39,8 @@ export default function AdminSettingsScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName={mockAdmin.name}
-        adminRole={mockAdmin.role}
-        onLogout={handleLogout}
-      />
-
+    <ProtectedRoute requiredRole="support">
+      <AdminLayout title="Settings" currentPage="settings">
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
@@ -199,9 +194,34 @@ export default function AdminSettingsScreen() {
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>
 
+        {/* Logout Button */}
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: colors.error }]}
+          onPress={() => {
+            Alert.alert(
+              'Logout',
+              'Are you sure you want to logout?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                  text: 'Logout', 
+                  style: 'destructive',
+                  onPress: async () => {
+                    await logout();
+                    router.replace('/admin/login' as any);
+                  }
+                },
+              ]
+            );
+          }}
+        >
+          <Text style={styles.logoutButtonText}>🚪 Logout</Text>
+        </TouchableOpacity>
+
         <View style={{ height: Spacing.xxxl }} />
       </ScrollView>
-    </View>
+      </AdminLayout>
+    </ProtectedRoute>
   );
 }
 
@@ -305,6 +325,18 @@ const styles = StyleSheet.create({
     ...Shadows.small,
   },
   saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.lg,
+    fontWeight: '700',
+  },
+  logoutButton: {
+    marginTop: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    alignItems: 'center',
+    ...Shadows.small,
+  },
+  logoutButtonText: {
     color: '#FFFFFF',
     fontSize: FontSizes.lg,
     fontWeight: '700',

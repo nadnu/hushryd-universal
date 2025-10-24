@@ -2,9 +2,11 @@
 // All images are loaded from the assets/images folder
 
 export const Images = {
-  // Logo images - using the gradient logo
+  // Logo images - using only the working gradient logo
   hushrydLogo: require('./hushryd-logo-black-gradient.png'),
   hushrydLogoGradient: require('./hushryd-logo-black-gradient.png'),
+  hushrydLogoWhite: require('./hushryd-logo-black-gradient.png'), // Will use tint for white effect
+  hushrydLogoBlack: require('./hushryd-logo-black-gradient.png'), // Original for light backgrounds
   
   // Banner images
   coastalBanner: require('./hushryd_banner.webp'),

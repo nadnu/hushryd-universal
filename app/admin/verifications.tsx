@@ -1,7 +1,6 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable, { TableColumn } from '../../components/admin/DataTable';
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
@@ -23,12 +22,6 @@ export default function VerificationsPage() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedVerification, setSelectedVerification] = useState<any>(null);
 
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', onPress: () => router.replace('/(tabs)/') },
-    ]);
-  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -163,20 +156,8 @@ export default function VerificationsPage() {
   const rejectedCount = mockVerifications.filter(v => v.status === 'rejected').length;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName="Support Agent"
-        adminRole="support"
-        onLogout={handleLogout}
-      />
-
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={[styles.backText, { color: colors.text }]}>Back to Dashboard</Text>
-        </TouchableOpacity>
-
-        <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
+    <AdminLayout title="Verifications" currentPage="verifications">
+      <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
           <View style={styles.mainContent}>
             <View style={styles.pageHeader}>
               <View>
@@ -215,8 +196,7 @@ export default function VerificationsPage() {
               />
             </View>
           </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
 
       {/* Review Modal */}
       <Modal visible={showReviewModal} animationType="fade" transparent>
@@ -271,7 +251,7 @@ export default function VerificationsPage() {
           </View>
         </View>
       </Modal>
-    </View>
+    </AdminLayout>
   );
 }
 

@@ -221,6 +221,29 @@ export default function AdminBookingsScreen() {
     setShowModal(true);
   }, []);
 
+  const handleSaveEdit = useCallback(() => {
+    if (!selectedBooking || !formData) return;
+    
+    setBookings(bookings.map(b => 
+      b.id === selectedBooking.id 
+        ? { ...b, ...formData, updatedAt: new Date().toISOString().split('T')[0] }
+        : b
+    ));
+    
+    setShowModal(false);
+    setIsEditing(false);
+    setSelectedBooking(null);
+    setFormData({});
+    Alert.alert('Success', 'Booking updated successfully');
+  }, [selectedBooking, formData, bookings]);
+
+  const handleCancelEdit = useCallback(() => {
+    setShowModal(false);
+    setIsEditing(false);
+    setSelectedBooking(null);
+    setFormData({});
+  }, []);
+
   const handleDelete = useCallback((booking: Booking) => {
     Alert.alert(
       'Delete Booking',
@@ -427,20 +450,22 @@ export default function AdminBookingsScreen() {
           >
             <Text style={[styles.actionButtonText, { color: '#f59e0b' }]}>Status</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#ef444420' }]}
-            onPress={() => handleDelete(row)}
-          >
-            <Text style={[styles.actionButtonText, { color: '#ef4444' }]}>Delete</Text>
-          </TouchableOpacity>
       </View>
       ),
     },
-  ], [colors, handleEdit, handleViewDetails, handleToggleStatus, handleDelete]);
+  ], [colors, handleEdit, handleViewDetails, handleToggleStatus]);
 
   return (
     <AdminLayout title="Booking Management" currentPage="bookings">
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header with Export Button */}
+        <View style={styles.header}>
+          <Text style={styles.subtitle}>Manage and monitor all bookings</Text>
+          <TouchableOpacity style={styles.exportButton} onPress={handleExportToExcel}>
+            <Text style={styles.exportButtonText}>📊 Export to CSV</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Statistics Cards */}
         <View style={styles.statsContainer}>
           <StatCard
@@ -817,6 +842,241 @@ export default function AdminBookingsScreen() {
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Edit Booking Modal */}
+      <Modal visible={showModal && isEditing} animationType="slide" presentationStyle="pageSheet">
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={[styles.modalHeader, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Edit Booking
+            </Text>
+            <TouchableOpacity onPress={handleCancelEdit}>
+              <Text style={[styles.modalCloseButton, { color: colors.primary }]}>✕</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {/* Passenger Information */}
+            <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.detailCardTitle, { color: colors.text }]}>Passenger Information</Text>
+              
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Name:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.passengerName || ''}
+                  onChangeText={(text) => setFormData({...formData, passengerName: text})}
+                  placeholder="Enter passenger name"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Phone:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.passengerPhone || ''}
+                  onChangeText={(text) => setFormData({...formData, passengerPhone: text})}
+                  placeholder="Enter phone number"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Email:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.passengerEmail || ''}
+                  onChangeText={(text) => setFormData({...formData, passengerEmail: text})}
+                  placeholder="Enter email"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+            </View>
+
+            {/* Booking Information */}
+            <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.detailCardTitle, { color: colors.text }]}>Booking Information</Text>
+              
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Route:</Text>
+                <View style={styles.routeInputContainer}>
+                  <TextInput
+                    style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text, flex: 1, marginRight: Spacing.sm }]}
+                    value={formData.from || ''}
+                    onChangeText={(text) => setFormData({...formData, from: text})}
+                    placeholder="From"
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                  <Text style={[styles.routeArrow, { color: colors.text }]}>→</Text>
+                  <TextInput
+                    style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text, flex: 1, marginLeft: Spacing.sm }]}
+                    value={formData.to || ''}
+                    onChangeText={(text) => setFormData({...formData, to: text})}
+                    placeholder="To"
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Pickup Location:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.pickupLocation || ''}
+                  onChangeText={(text) => setFormData({...formData, pickupLocation: text})}
+                  placeholder="Enter pickup location"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Drop Location:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.dropLocation || ''}
+                  onChangeText={(text) => setFormData({...formData, dropLocation: text})}
+                  placeholder="Enter drop location"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Ride Date:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.rideDate || ''}
+                  onChangeText={(text) => setFormData({...formData, rideDate: text})}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Ride Time:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.rideTime || ''}
+                  onChangeText={(text) => setFormData({...formData, rideTime: text})}
+                  placeholder="HH:MM"
+                  placeholderTextColor={colors.textSecondary}
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Seats Booked:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.seatsBooked?.toString() || ''}
+                  onChangeText={(text) => setFormData({...formData, seatsBooked: parseInt(text) || 0})}
+                  placeholder="Enter number of seats"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Total Amount:</Text>
+                <TextInput
+                  style={[styles.editInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                  value={formData.totalAmount?.toString() || ''}
+                  onChangeText={(text) => setFormData({...formData, totalAmount: parseFloat(text) || 0})}
+                  placeholder="Enter total amount"
+                  placeholderTextColor={colors.textSecondary}
+                  keyboardType="numeric"
+                />
+              </View>
+            </View>
+
+            {/* Status Information */}
+            <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.detailCardTitle, { color: colors.text }]}>Status Information</Text>
+              
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Booking Status:</Text>
+                <View style={styles.pickerContainer}>
+                  {BOOKING_STATUSES.map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      style={[
+                        styles.pickerOption,
+                        { 
+                          backgroundColor: formData.status === status ? colors.primary : colors.background,
+                          borderColor: colors.border 
+                        }
+                      ]}
+                      onPress={() => setFormData({...formData, status})}
+                    >
+                      <Text style={[
+                        styles.pickerOptionText,
+                        { color: formData.status === status ? '#FFFFFF' : colors.text }
+                      ]}>
+                        {status}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.editRow}>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Payment Status:</Text>
+                <View style={styles.pickerContainer}>
+                  {PAYMENT_STATUSES.map((status) => (
+                    <TouchableOpacity
+                      key={status}
+                      style={[
+                        styles.pickerOption,
+                        { 
+                          backgroundColor: formData.paymentStatus === status ? colors.primary : colors.background,
+                          borderColor: colors.border 
+                        }
+                      ]}
+                      onPress={() => setFormData({...formData, paymentStatus: status})}
+                    >
+                      <Text style={[
+                        styles.pickerOptionText,
+                        { color: formData.paymentStatus === status ? '#FFFFFF' : colors.text }
+                      ]}>
+                        {status}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            {/* Special Requests */}
+            <View style={[styles.detailCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.detailCardTitle, { color: colors.text }]}>Special Requests</Text>
+              <TextInput
+                style={[styles.editTextArea, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
+                value={formData.specialRequests || ''}
+                onChangeText={(text) => setFormData({...formData, specialRequests: text})}
+                placeholder="Enter special requests (optional)"
+                placeholderTextColor={colors.textSecondary}
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+
+            {/* Action Buttons */}
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.cancelButton, { backgroundColor: colors.lightGray, borderColor: colors.border }]}
+                onPress={handleCancelEdit}
+              >
+                <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.saveButton, { backgroundColor: colors.primary }]}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.saveButtonText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
     </AdminLayout>
   );
 }
@@ -825,6 +1085,29 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: Spacing.lg,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  subtitle: {
+    fontSize: FontSizes.md,
+    color: '#6B7280',
+  },
+  exportButton: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  exportButtonText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -1031,5 +1314,76 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.sm,
     fontWeight: '600',
     marginLeft: Spacing.xs,
+  },
+  // Edit form styles
+  editRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  editLabel: {
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    width: 120,
+    marginRight: Spacing.md,
+  },
+  editInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    fontSize: FontSizes.md,
+  },
+  editTextArea: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    fontSize: FontSizes.md,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  routeInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  routeArrow: {
+    fontSize: FontSizes.md,
+    fontWeight: '600',
+    marginHorizontal: Spacing.sm,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    marginRight: Spacing.sm,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: FontSizes.md,
+    fontWeight: '600',
+  },
+  saveButton: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginLeft: Spacing.sm,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    fontSize: FontSizes.md,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

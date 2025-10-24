@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import Images from '../assets/images';
 import { FontSizes, Spacing } from '../constants/Design';
 
 interface HushRydLogoProps {
@@ -9,6 +10,7 @@ interface HushRydLogoProps {
   showBackground?: boolean;
   backgroundColor?: string;
   shadow?: boolean;
+  darkBackground?: boolean; // New prop to indicate if background is dark
 }
 
 export default function HushRydLogo({ 
@@ -17,31 +19,29 @@ export default function HushRydLogo({
   color = '#084F8D',
   showBackground = false,
   backgroundColor = '#32CD32',
-  shadow = false
+  shadow = false,
+  darkBackground = false
 }: HushRydLogoProps) {
   
   const getSizeStyles = () => {
     switch (size) {
       case 'small':
         return {
-          carIcon: FontSizes.small,
-          pinIcon: FontSizes.tiny,
+          logoSize: 24,
           text: FontSizes.small,
           spacing: Spacing.tiny,
           containerPadding: Spacing.tiny,
         };
       case 'large':
         return {
-          carIcon: FontSizes.extraLarge * 2,
-          pinIcon: FontSizes.large,
+          logoSize: 80,
           text: FontSizes.extraLarge * 1.5,
           spacing: Spacing.medium,
           containerPadding: Spacing.medium,
         };
       default: // medium
         return {
-          carIcon: FontSizes.large,
-          pinIcon: FontSizes.small,
+          logoSize: 40,
           text: FontSizes.large,
           spacing: Spacing.small,
           containerPadding: Spacing.small,
@@ -51,21 +51,25 @@ export default function HushRydLogo({
 
   const sizeStyles = getSizeStyles();
 
-  const renderCarIcon = () => (
-    <Text style={[styles.carIcon, { fontSize: sizeStyles.carIcon, color }]}>
-      🚗
-    </Text>
-  );
+  const renderLogoImage = () => {
+    return (
+      <Image 
+        source={Images.hushrydLogoGradient}
+        style={[styles.logoImage, { 
+          width: sizeStyles.logoSize, 
+          height: sizeStyles.logoSize,
+          // Apply tint color for dark backgrounds
+          tintColor: darkBackground ? '#FFFFFF' : undefined
+        }]}
+        resizeMode="contain"
+      />
+    );
+  };
 
   const renderTextSection = () => (
-    <View style={[styles.textContainer, { gap: sizeStyles.spacing / 2 }]}>
-      <Text style={[styles.pinIcon, { fontSize: sizeStyles.pinIcon, color }]}>
-        📍
-      </Text>
-      <Text style={[styles.logoText, { fontSize: sizeStyles.text, color }]}>
-        HushRyd
-      </Text>
-    </View>
+    <Text style={[styles.logoText, { fontSize: sizeStyles.text, color }]}>
+      HushRyd
+    </Text>
   );
 
   const renderContent = () => {
@@ -73,16 +77,16 @@ export default function HushRydLogo({
       case 'vertical':
         return (
           <View style={[styles.verticalLayout, { gap: sizeStyles.spacing }]}>
-            {renderCarIcon()}
+            {renderLogoImage()}
             {renderTextSection()}
           </View>
         );
       case 'icon-only':
-        return renderCarIcon();
+        return renderLogoImage();
       default: // horizontal
         return (
           <View style={[styles.horizontalLayout, { gap: sizeStyles.spacing }]}>
-            {renderCarIcon()}
+            {renderLogoImage()}
             {renderTextSection()}
           </View>
         );
@@ -122,16 +126,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  carIcon: {
-    fontWeight: 'normal',
-  },
-  textContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pinIcon: {
-    marginRight: 2,
+  logoImage: {
+    // Image styles are applied inline based on size
   },
   logoText: {
     fontWeight: '800',

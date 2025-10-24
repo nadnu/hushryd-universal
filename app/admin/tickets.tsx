@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable, { TableColumn } from '../../components/admin/DataTable';
+import ProtectedRoute from '../../components/admin/ProtectedRoute';
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
 import { BorderRadius, FontSizes, Shadows, Spacing } from '../../constants/Design';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Mock data
 const mockTickets = [
@@ -20,15 +22,29 @@ const mockTickets = [
 export default function TicketsPage() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
+  const { logout } = useAuth();
   const [filter, setFilter] = useState<'all' | 'open' | 'in_progress' | 'resolved' | 'closed'>('all');
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [resolution, setResolution] = useState('');
+  const [showNewTicketModal, setShowNewTicketModal] = useState(false);
+  const [newTicketData, setNewTicketData] = useState({
+    subject: '',
+    category: 'other',
+    priority: 'medium',
+    description: ''
+  });
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert('Logout', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', onPress: () => router.replace('/(tabs)/') },
+      { 
+        text: 'Logout', 
+        onPress: async () => {
+          await logout();
+          router.replace('/admin/login' as any);
+        }
+      },
     ]);
   };
 
@@ -92,6 +108,35 @@ export default function TicketsPage() {
 
   const handleAssignToMe = () => {
     Alert.alert('Assigned', `Ticket ${selectedTicket?.ticketNumber} has been assigned to you.`);
+  };
+
+  const handleCreateNewTicket = () => {
+    setNewTicketData({
+      subject: '',
+      category: 'other',
+      priority: 'medium',
+      description: ''
+    });
+    setShowNewTicketModal(true);
+  };
+
+  const handleSaveNewTicket = () => {
+    if (!newTicketData.subject.trim()) {
+      Alert.alert('Error', 'Please enter a subject');
+      return;
+    }
+    if (!newTicketData.description.trim()) {
+      Alert.alert('Error', 'Please enter a description');
+      return;
+    }
+    Alert.alert('Success', 'New ticket created successfully!');
+    setShowNewTicketModal(false);
+    setNewTicketData({
+      subject: '',
+      category: 'other',
+      priority: 'medium',
+      description: ''
+    });
   };
 
   const columns: TableColumn[] = [
@@ -188,20 +233,9 @@ export default function TicketsPage() {
   const resolvedCount = mockTickets.filter(t => t.status === 'resolved').length;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName="Support Agent"
-        adminRole="support"
-        onLogout={handleLogout}
-      />
-
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={[styles.backText, { color: colors.text }]}>Back to Dashboard</Text>
-        </TouchableOpacity>
-
-        <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
+    <ProtectedRoute requiredRole="support">
+      <AdminLayout title="Support Tickets" currentPage="tickets">
+      <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
           <View style={styles.mainContent}>
             <View style={styles.pageHeader}>
               <View>
@@ -210,7 +244,10 @@ export default function TicketsPage() {
                   Manage and resolve user support requests
                 </Text>
               </View>
-              <TouchableOpacity style={[styles.createButton, { backgroundColor: colors.primary }]}>
+              <TouchableOpacity 
+                style={[styles.createButton, { backgroundColor: colors.primary }]}
+                onPress={handleCreateNewTicket}
+              >
                 <Text style={styles.createButtonText}>+ New Ticket</Text>
               </TouchableOpacity>
             </View>
@@ -243,7 +280,6 @@ export default function TicketsPage() {
             </View>
           </View>
         </ScrollView>
-      </View>
 
       {/* Ticket Detail Modal */}
       <Modal visible={showTicketModal} animationType="fade" transparent>
@@ -317,7 +353,105 @@ export default function TicketsPage() {
           </View>
         </View>
       </Modal>
-    </View>
+
+      {/* New Ticket Modal */}
+      <Modal visible={showNewTicketModal} animationType="slide" transparent={false}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Create New Ticket</Text>
+            <TouchableOpacity onPress={() => setShowNewTicketModal(false)}>
+              <Text style={styles.modalCloseButton}>✕</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Subject *</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              placeholder="Enter ticket subject"
+              placeholderTextColor={colors.textSecondary}
+              value={newTicketData.subject}
+              onChangeText={(text) => setNewTicketData({ ...newTicketData, subject: text })}
+            />
+
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Category</Text>
+            <View style={styles.pickerContainer}>
+              {['payment', 'verification', 'ride_issue', 'account', 'other'].map(category => (
+                <TouchableOpacity
+                  key={category}
+                  style={[
+                    styles.pickerOption,
+                    {
+                      backgroundColor: newTicketData.category === category ? colors.primary : colors.card,
+                      borderColor: colors.border,
+                    }
+                  ]}
+                  onPress={() => setNewTicketData({ ...newTicketData, category })}
+                >
+                  <Text style={[
+                    styles.pickerOptionText,
+                    { color: newTicketData.category === category ? '#FFFFFF' : colors.text }
+                  ]}>
+                    {category.replace('_', ' ')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Priority</Text>
+            <View style={styles.pickerContainer}>
+              {['low', 'medium', 'high', 'urgent'].map(priority => (
+                <TouchableOpacity
+                  key={priority}
+                  style={[
+                    styles.pickerOption,
+                    {
+                      backgroundColor: newTicketData.priority === priority ? colors.primary : colors.card,
+                      borderColor: colors.border,
+                    }
+                  ]}
+                  onPress={() => setNewTicketData({ ...newTicketData, priority })}
+                >
+                  <Text style={[
+                    styles.pickerOptionText,
+                    { color: newTicketData.priority === priority ? '#FFFFFF' : colors.text }
+                  ]}>
+                    {priority}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.inputLabel, { color: colors.text }]}>Description *</Text>
+            <TextInput
+              style={[styles.input, styles.textArea, { backgroundColor: colors.card, borderColor: colors.border, color: colors.text }]}
+              placeholder="Enter ticket description"
+              placeholderTextColor={colors.textSecondary}
+              value={newTicketData.description}
+              onChangeText={(text) => setNewTicketData({ ...newTicketData, description: text })}
+              multiline
+              numberOfLines={4}
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton, { backgroundColor: colors.lightGray }]}
+                onPress={() => setShowNewTicketModal(false)}
+              >
+                <Text style={[styles.modalButtonText, { color: colors.text }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.saveButton, { backgroundColor: colors.primary }]}
+                onPress={handleSaveNewTicket}
+              >
+                <Text style={[styles.modalButtonText, { color: '#FFFFFF' }]}>Create Ticket</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
+      </AdminLayout>
+    </ProtectedRoute>
   );
 }
 
@@ -442,5 +576,19 @@ const styles = StyleSheet.create({
   modalButtonText: { fontSize: FontSizes.small, fontWeight: '700' },
   closeButton: { alignItems: 'center', padding: Spacing.small },
   closeButtonText: { fontSize: FontSizes.small, fontWeight: '600' },
+  // New Ticket Modal Styles
+  modalContainer: { flex: 1 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: Spacing.large, borderBottomWidth: 1 },
+  modalCloseButton: { fontSize: FontSizes.extraLarge, fontWeight: '700', color: '#666' },
+  inputLabel: { fontSize: FontSizes.small, fontWeight: '600', marginBottom: Spacing.tiny, marginTop: Spacing.small },
+  input: { paddingHorizontal: Spacing.medium, paddingVertical: Spacing.small, borderRadius: BorderRadius.small, borderWidth: 1, fontSize: FontSizes.small },
+  textArea: { minHeight: 80, textAlignVertical: 'top' },
+  pickerContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.small, marginBottom: Spacing.small },
+  pickerOption: { paddingHorizontal: Spacing.medium, paddingVertical: Spacing.small, borderRadius: BorderRadius.small, borderWidth: 1 },
+  pickerOptionText: { fontSize: FontSizes.small, fontWeight: '600', textTransform: 'capitalize' },
+  modalActions: { flexDirection: 'row', gap: Spacing.medium, marginTop: Spacing.extraLarge, marginBottom: Spacing.extraLarge },
+  modalButton: { flex: 1, paddingVertical: Spacing.medium, borderRadius: BorderRadius.medium, alignItems: 'center' },
+  cancelButton: {},
+  saveButton: {},
 });
 

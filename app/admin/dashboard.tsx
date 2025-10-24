@@ -1,296 +1,276 @@
-import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AdminLayout from '../../components/admin/AdminLayout';
+import ProtectedRoute from '../../components/admin/ProtectedRoute';
+import { useColorScheme } from '../../components/useColorScheme';
+import Colors from '../../constants/Colors';
 import { BorderRadius, FontSizes, Shadows, Spacing } from '../../constants/Design';
+import { useAuth } from '../../contexts/AuthContext';
 
-const { width } = Dimensions.get('window');
+export default function AdminDashboardScreen() {
+  const { admin, logout } = useAuth();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
 
-export default function AdminDashboard() {
-  const getStatsData = () => [
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/admin/login' as any);
+  };
+
+  const dashboardCards = [
     {
-      title: 'Sessions',
-      value: '24k',
-      change: '8.5%',
-      changeType: 'positive',
+      title: 'Support Tickets',
+      description: 'Manage user support requests',
+      icon: '🎫',
+      route: '/admin/tickets',
+      color: '#3b82f6',
+    },
+    {
+      title: 'Transactions',
+      description: 'View financial transactions',
+      icon: '💰',
+      route: '/admin/transactions',
+      color: '#10b981',
+    },
+    {
+      title: 'Payouts',
+      description: 'Process driver payouts',
+      icon: '💳',
+      route: '/admin/payouts',
+      color: '#f59e0b',
+    },
+    {
+      title: 'Verifications',
+      description: 'Review user verifications',
+      icon: '✅',
+      route: '/admin/verifications',
+      color: '#8b5cf6',
+    },
+    {
+      title: 'Complaints',
+      description: 'Handle customer complaints',
+      icon: '📝',
+      route: '/admin/complaints',
+      color: '#ef4444',
+    },
+    {
+      title: 'Fare Management',
+      description: 'Manage fare rules',
       icon: '📊',
-      gradient: ['#3B82F6', '#1D4ED8'] as const,
+      route: '/admin/fares',
+      color: '#06b6d4',
     },
     {
-      title: 'Avg.Sessions',
-      value: '00:18',
-      change: '1.5%',
-      changeType: 'positive',
-      icon: '⏱️',
-      gradient: ['#10B981', '#059669'] as const,
+      title: 'Support',
+      description: 'General support management',
+      icon: '🆘',
+      route: '/admin/support',
+      color: '#84cc16',
     },
     {
-      title: 'Bounce Rate',
-      value: '24.5%',
-      change: '2.4%',
-      changeType: 'negative',
-      icon: '📈',
-      gradient: ['#F59E0B', '#D97706'] as const,
-    },
-    {
-      title: 'Conversion',
-      value: '3.2%',
-      change: '0.3%',
-      changeType: 'positive',
-      icon: '💰',
-      gradient: ['#EF4444', '#DC2626'] as const,
+      title: 'Settings',
+      description: 'System and account settings',
+      icon: '⚙️',
+      route: '/admin/settings',
+      color: '#6b7280',
     },
   ];
 
-  const getRecentActivity = () => [
-    {
-      id: '1',
-      icon: '👤',
-      title: 'New User Registration',
-      description: 'John Doe registered for the platform',
-      time: '2 minutes ago',
-    },
-    {
-      id: '2',
-      icon: '🚗',
-      title: 'Ride Completed',
-      description: 'Ride from Hyderabad to Chennai completed',
-      time: '15 minutes ago',
-    },
-    {
-      id: '3',
-      icon: '💰',
-      title: 'Payment Received',
-      description: 'Payment of Rs 2,500 received for ride booking',
-      time: '1 hour ago',
-    },
-    {
-      id: '4',
-      icon: '🚨',
-      title: 'SOS Alert',
-      description: 'Emergency alert from user during ride',
-      time: '2 hours ago',
-    },
-  ];
-
-  const getQuickActions = () => [
-    { id: 'add-user', title: 'Add User', icon: '👤', color: '#3B82F6' },
-    { id: 'create-ride', title: 'Create Ride', icon: '🚗', color: '#10B981' },
-    { id: 'view-reports', title: 'View Reports', icon: '📊', color: '#F59E0B' },
-    { id: 'manage-sos', title: 'Manage SOS', icon: '🚨', color: '#EF4444' },
+  const quickStats = [
+    { label: 'Open Tickets', value: '24', color: '#f59e0b' },
+    { label: 'Pending Payouts', value: '₹45,000', color: '#10b981' },
+    { label: 'Verifications', value: '12', color: '#8b5cf6' },
+    { label: 'Complaints', value: '8', color: '#ef4444' },
   ];
 
   return (
-    <AdminLayout title="Admin Dashboard" currentPage="dashboard">
-      {/* Stats Cards */}
-      <View style={styles.statsSection}>
-        <Text style={styles.sectionTitle}>Overview</Text>
-        <View style={styles.statsGrid}>
-          {getStatsData().map((stat, index) => (
-            <View key={index} style={styles.statCard}>
-              <LinearGradient
-                colors={stat.gradient}
-                style={styles.statGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <View style={styles.statContent}>
-                  <View style={styles.statHeader}>
-                    <Text style={styles.statIcon}>{stat.icon}</Text>
-                    <View style={styles.statChange}>
-                      <Text style={[
-                        styles.statChangeText,
-                        { color: stat.changeType === 'positive' ? '#10B981' : '#EF4444' }
-                      ]}>
-                        {stat.changeType === 'positive' ? '↗' : '↘'} {stat.change}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={styles.statValue}>{stat.value}</Text>
-                  <Text style={styles.statTitle}>{stat.title}</Text>
+    <ProtectedRoute requiredRole="support">
+      <AdminLayout title="Dashboard" currentPage="dashboard">
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+          <View style={styles.content}>
+            {/* Welcome Section */}
+            <View style={[styles.welcomeCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadows.medium]}>
+              <View style={styles.welcomeContent}>
+                <View>
+                  <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+                    Welcome back, {admin?.name}!
+                  </Text>
+                  <Text style={[styles.welcomeSubtitle, { color: colors.textSecondary }]}>
+                    Here's what's happening in your admin dashboard
+                  </Text>
                 </View>
-              </LinearGradient>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Recent Activity */}
-      <View style={styles.activitySection}>
-        <Text style={styles.sectionTitle}>Recent Activity</Text>
-        <View style={styles.activityList}>
-          {getRecentActivity().map((activity) => (
-            <View key={activity.id} style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <Text style={styles.activityIconText}>{activity.icon}</Text>
-              </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>{activity.title}</Text>
-                <Text style={styles.activityDescription}>{activity.description}</Text>
-                <Text style={styles.activityTime}>{activity.time}</Text>
+                <View style={[styles.roleBadge, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.roleText}>{admin?.role?.toUpperCase()}</Text>
+                </View>
               </View>
             </View>
-          ))}
-        </View>
-      </View>
 
-      {/* Quick Actions */}
-      <View style={styles.quickActionsSection}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActionsGrid}>
-          {getQuickActions().map((action) => (
-            <TouchableOpacity key={action.id} style={styles.quickActionCard}>
-              <View style={[styles.quickActionIcon, { backgroundColor: action.color }]}>
-                <Text style={styles.quickActionIconText}>{action.icon}</Text>
+            {/* Quick Stats */}
+            <View style={styles.statsSection}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Stats</Text>
+              <View style={styles.statsGrid}>
+                {quickStats.map((stat, index) => (
+                  <View key={index} style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadows.small]}>
+                    <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
+                    <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{stat.label}</Text>
+                  </View>
+                ))}
               </View>
-              <Text style={styles.quickActionTitle}>{action.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </AdminLayout>
+            </View>
+
+            {/* Dashboard Cards */}
+            <View style={styles.cardsSection}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
+              <View style={styles.cardsGrid}>
+                {dashboardCards.map((card, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.dashboardCard, { backgroundColor: colors.card, borderColor: colors.border }, Shadows.small]}
+                    onPress={() => router.push(card.route as any)}
+                  >
+                    <View style={[styles.cardIcon, { backgroundColor: card.color + '20' }]}>
+                      <Text style={styles.cardIconText}>{card.icon}</Text>
+                    </View>
+                    <Text style={[styles.cardTitle, { color: colors.text }]}>{card.title}</Text>
+                    <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>{card.description}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Logout Section */}
+            <View style={styles.logoutSection}>
+              <TouchableOpacity
+                style={[styles.logoutButton, { backgroundColor: colors.error }]}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutButtonText}>🚪 Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </AdminLayout>
+    </ProtectedRoute>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    padding: Spacing.large,
+  },
+  welcomeCard: {
+    padding: Spacing.large,
+    borderRadius: BorderRadius.large,
+    borderWidth: 1,
+    marginBottom: Spacing.xl,
+  },
+  welcomeContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  welcomeTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: 'bold',
+    marginBottom: Spacing.tiny,
+  },
+  welcomeSubtitle: {
+    fontSize: FontSizes.medium,
+  },
+  roleBadge: {
+    paddingHorizontal: Spacing.medium,
+    paddingVertical: Spacing.small,
+    borderRadius: BorderRadius.medium,
+  },
+  roleText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.small,
+    fontWeight: 'bold',
+  },
   statsSection: {
     marginBottom: Spacing.xl,
   },
   sectionTitle: {
-    fontSize: FontSizes.xl,
+    fontSize: FontSizes.large,
     fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.medium,
   },
   statsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.medium,
   },
   statCard: {
     flex: 1,
-    marginHorizontal: Spacing.xs,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-    ...Shadows.medium,
-  },
-  statGradient: {
-    padding: Spacing.sm,
-    minHeight: 80,
-  },
-  statContent: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  statHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    minWidth: '45%',
+    padding: Spacing.medium,
+    borderRadius: BorderRadius.medium,
+    borderWidth: 1,
     alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  statIcon: {
-    fontSize: 20,
-  },
-  statChange: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.sm,
-  },
-  statChangeText: {
-    fontSize: FontSizes.sm,
-    fontWeight: 'bold',
   },
   statValue: {
     fontSize: FontSizes.xl,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.tiny,
   },
-  statTitle: {
-    fontSize: FontSizes.sm,
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontWeight: '500',
-  },
-  activitySection: {
-    marginBottom: Spacing.xl,
-  },
-  activityList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    ...Shadows.small,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: Spacing.md,
-  },
-  activityIconText: {
-    fontSize: 18,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: FontSizes.md,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: Spacing.xs,
-  },
-  activityDescription: {
-    fontSize: FontSizes.sm,
-    color: '#6B7280',
-    marginBottom: Spacing.xs,
-  },
-  activityTime: {
-    fontSize: FontSizes.xs,
-    color: '#9CA3AF',
-  },
-  quickActionsSection: {
-    marginBottom: Spacing.xl,
-  },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  quickActionCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    alignItems: 'center',
-    marginHorizontal: Spacing.xs,
-    ...Shadows.small,
-  },
-  quickActionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  quickActionIconText: {
-    fontSize: 20,
-    color: '#FFFFFF',
-  },
-  quickActionTitle: {
-    fontSize: FontSizes.sm,
-    fontWeight: '600',
-    color: '#111827',
+  statLabel: {
+    fontSize: FontSizes.small,
     textAlign: 'center',
+  },
+  cardsSection: {
+    marginBottom: Spacing.xl,
+  },
+  cardsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.medium,
+  },
+  dashboardCard: {
+    flex: 1,
+    minWidth: '45%',
+    padding: Spacing.medium,
+    borderRadius: BorderRadius.medium,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  cardIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: BorderRadius.medium,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.medium,
+  },
+  cardIconText: {
+    fontSize: FontSizes.xl,
+  },
+  cardTitle: {
+    fontSize: FontSizes.medium,
+    fontWeight: 'bold',
+    marginBottom: Spacing.tiny,
+    textAlign: 'center',
+  },
+  cardDescription: {
+    fontSize: FontSizes.small,
+    textAlign: 'center',
+  },
+  logoutSection: {
+    marginTop: Spacing.xl,
+    alignItems: 'center',
+  },
+  logoutButton: {
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.medium,
+    borderRadius: BorderRadius.medium,
+    ...Shadows.small,
+  },
+  logoutButtonText: {
+    color: '#FFFFFF',
+    fontSize: FontSizes.medium,
+    fontWeight: 'bold',
   },
 });

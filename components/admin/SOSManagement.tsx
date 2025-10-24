@@ -150,7 +150,7 @@ export default function SOSManagement({}: SOSManagementProps) {
 
   const renderSOSAlert = ({ item }: { item: SOSAlert }) => (
     <TouchableOpacity
-      style={[styles.alertCard, { backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }]}
+      style={[styles.alertCard, { backgroundColor: colors.card, borderColor: colors.border }]}
       onPress={() => {
         setSelectedAlert(item);
         setShowAlertModal(true);
@@ -158,8 +158,8 @@ export default function SOSManagement({}: SOSManagementProps) {
     >
       <View style={styles.alertHeader}>
         <View style={styles.alertInfo}>
-          <Text style={[styles.alertUser, { color: '#FFFFFF' }]}>{item.userName}</Text>
-          <Text style={[styles.alertPhone, { color: 'rgba(255, 255, 255, 0.7)' }]}>{item.userPhone}</Text>
+          <Text style={[styles.alertUser, { color: colors.text }]}>{item.userName}</Text>
+          <Text style={[styles.alertPhone, { color: colors.textSecondary }]}>{item.userPhone}</Text>
         </View>
         <View style={styles.alertStatus}>
           <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
@@ -174,20 +174,20 @@ export default function SOSManagement({}: SOSManagementProps) {
       <View style={styles.alertDetails}>
         <Text style={styles.emergencyIcon}>{getEmergencyTypeIcon(item.emergencyType)}</Text>
         <View style={styles.alertContent}>
-          <Text style={[styles.alertType, { color: '#FFFFFF' }]}>
+          <Text style={[styles.alertType, { color: colors.text }]}>
             {item.emergencyType.charAt(0).toUpperCase() + item.emergencyType.slice(1)} Emergency
           </Text>
-          <Text style={[styles.alertLocation, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+          <Text style={[styles.alertLocation, { color: colors.textSecondary }]}>
             📍 {item.location.address}
           </Text>
-          <Text style={[styles.alertTime, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+          <Text style={[styles.alertTime, { color: colors.textSecondary }]}>
             🕐 {new Date(item.timestamp).toLocaleString()}
           </Text>
         </View>
       </View>
       
       {item.description && (
-        <Text style={[styles.alertDescription, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+        <Text style={[styles.alertDescription, { color: colors.textSecondary }]}>
           {item.description}
         </Text>
       )}
@@ -195,61 +195,61 @@ export default function SOSManagement({}: SOSManagementProps) {
   );
 
   const renderEmergencyService = ({ item }: { item: EmergencyService }) => (
-    <View style={[styles.serviceCard, { backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }]}>
+    <View style={[styles.serviceCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       <View style={styles.serviceHeader}>
-        <Text style={[styles.serviceName, { color: '#FFFFFF' }]}>{item.name}</Text>
-        <View style={[styles.activeBadge, { backgroundColor: item.isActive ? '#10B981' : '#6B7280' }]}>
+        <Text style={[styles.serviceName, { color: colors.text }]}>{item.name}</Text>
+        <View style={[styles.activeBadge, { backgroundColor: item.isActive ? colors.success : colors.darkGray }]}>
           <Text style={styles.activeText}>{item.isActive ? 'ACTIVE' : 'INACTIVE'}</Text>
         </View>
       </View>
-      <Text style={[styles.servicePhone, { color: 'rgba(255, 255, 255, 0.7)' }]}>📞 {item.phone}</Text>
-      <Text style={[styles.serviceArea, { color: 'rgba(255, 255, 255, 0.7)' }]}>📍 {item.area}</Text>
-      <Text style={[styles.serviceType, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+      <Text style={[styles.servicePhone, { color: colors.textSecondary }]}>📞 {item.phone}</Text>
+      <Text style={[styles.serviceArea, { color: colors.textSecondary }]}>📍 {item.area}</Text>
+      <Text style={[styles.serviceType, { color: colors.textSecondary }]}>
         Type: {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
       </Text>
     </View>
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: 'transparent' }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: '#FFFFFF' }]}>SOS Emergency Management</Text>
-        <Text style={[styles.headerSubtitle, { color: 'rgba(255, 255, 255, 0.7)' }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>SOS Emergency Management</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
           Monitor and manage emergency alerts
         </Text>
       </View>
 
       {/* Stats Cards */}
       <View style={styles.statsContainer}>
-        <View style={[styles.statCard, { backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }]}>
-          <Text style={[styles.statNumber, { color: '#EF4444' }]}>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.statNumber, { color: colors.error }]}>
             {sosAlerts.filter(alert => alert.status === 'active').length}
           </Text>
-          <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Active Alerts</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Active Alerts</Text>
         </View>
         
-        <View style={[styles.statCard, { backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }]}>
-          <Text style={[styles.statNumber, { color: '#10B981' }]}>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.statNumber, { color: colors.success }]}>
             {sosAlerts.filter(alert => alert.status === 'resolved').length}
           </Text>
-          <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Resolved</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Resolved</Text>
         </View>
         
-        <View style={[styles.statCard, { backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(255, 255, 255, 0.1)' }]}>
-          <Text style={[styles.statNumber, { color: '#3B82F6' }]}>
+        <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.statNumber, { color: colors.primary }]}>
             {emergencyServices.filter(service => service.isActive).length}
           </Text>
-          <Text style={[styles.statLabel, { color: 'rgba(255, 255, 255, 0.7)' }]}>Active Services</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Active Services</Text>
         </View>
       </View>
 
       {/* SOS Alerts */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>Recent SOS Alerts</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent SOS Alerts</Text>
           <TouchableOpacity style={styles.refreshButton}>
-            <Text style={[styles.refreshText, { color: '#3B82F6' }]}>Refresh</Text>
+            <Text style={[styles.refreshText, { color: colors.primary }]}>Refresh</Text>
           </TouchableOpacity>
         </View>
         
@@ -265,12 +265,12 @@ export default function SOSManagement({}: SOSManagementProps) {
       {/* Emergency Services */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: '#FFFFFF' }]}>Emergency Services</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Emergency Services</Text>
           <TouchableOpacity 
             style={styles.addButton}
             onPress={() => setShowServiceModal(true)}
           >
-            <Text style={[styles.addButtonText, { color: '#3B82F6' }]}>+ Add Service</Text>
+            <Text style={[styles.addButtonText, { color: colors.primary }]}>+ Add Service</Text>
           </TouchableOpacity>
         </View>
         

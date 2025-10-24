@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable from '../../components/admin/DataTable';
 import StatsCard from '../../components/admin/StatsCard';
 import { useColorScheme } from '../../components/useColorScheme';
@@ -29,9 +29,6 @@ export default function AdminSupportScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
 
-  const handleLogout = () => {
-    router.replace('/(tabs)/');
-  };
 
   const filteredTickets = mockTickets.filter((ticket) => {
     return priorityFilter === 'all' || ticket.priority === priorityFilter;
@@ -67,26 +64,8 @@ export default function AdminSupportScreen() {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName={mockAdmin.name}
-        adminRole={mockAdmin.role}
-        onLogout={handleLogout}
-      />
-
+    <AdminLayout title="Support Management" currentPage="support">
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.title, { color: colors.text }]}>Support Management</Text>
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Manage tickets and user support</Text>
-          </View>
-          <TouchableOpacity
-            style={[styles.backButton, { backgroundColor: colors.lightGray }]}
-            onPress={() => router.back()}
-          >
-            <Text style={[styles.backButtonText, { color: colors.text }]}>← Back</Text>
-          </TouchableOpacity>
-        </View>
 
         {/* Support Stats */}
         <View style={styles.statsGrid}>
@@ -168,7 +147,7 @@ export default function AdminSupportScreen() {
           />
         </View>
       </ScrollView>
-    </View>
+    </AdminLayout>
   );
 }
 

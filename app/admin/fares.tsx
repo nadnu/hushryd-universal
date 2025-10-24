@@ -1,17 +1,16 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable, { TableColumn } from '../../components/admin/DataTable';
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors, { CURRENCY_SYMBOL } from '../../constants/Colors';
@@ -177,12 +176,6 @@ export default function FarePricingManagement() {
     priority: 0,
   });
 
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', onPress: () => router.replace('/(tabs)/') },
-    ]);
-  };
 
   const handleAddNew = () => {
     setFormData({
@@ -422,21 +415,8 @@ export default function FarePricingManagement() {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName="Super Admin"
-        adminRole="superadmin"
-        onLogout={handleLogout}
-      />
-
-      <View style={styles.content}>
-        {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={[styles.backText, { color: colors.text }]}>Back to Dashboard</Text>
-        </TouchableOpacity>
-
-        <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
+    <AdminLayout title="Fare Pricing Management" currentPage="fares">
+      <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
           <View style={styles.mainContent}>
             {/* Header */}
             <View style={styles.pageHeader}>
@@ -558,8 +538,7 @@ export default function FarePricingManagement() {
               />
             </View>
           </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
 
       {/* Add/Edit Modal */}
       <Modal
@@ -791,7 +770,7 @@ export default function FarePricingManagement() {
           </ScrollView>
         </View>
       </Modal>
-    </View>
+    </AdminLayout>
   );
 }
 

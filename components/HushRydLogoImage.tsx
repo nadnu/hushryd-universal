@@ -8,13 +8,15 @@ interface HushRydLogoImageProps {
   showBackground?: boolean;
   backgroundColor?: string;
   shadow?: boolean;
+  darkBackground?: boolean; // New prop to indicate if background is dark
 }
 
 export default function HushRydLogoImage({ 
   size = 'medium', 
   showBackground = false,
   backgroundColor = '#32CD32',
-  shadow = false
+  shadow = false,
+  darkBackground = false
 }: HushRydLogoImageProps) {
   
   const getSizeStyles = () => {
@@ -63,11 +65,13 @@ export default function HushRydLogoImage({
           {
             width: sizeStyles.width,
             height: sizeStyles.height,
+            // Apply tint color for dark backgrounds
+            tintColor: darkBackground ? '#FFFFFF' : undefined
           }
         ]}
         resizeMode="contain"
         onError={() => {
-          console.log('HushRyd gradient logo failed to load');
+          console.log('HushRyd logo failed to load');
         }}
       />
     </View>

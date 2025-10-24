@@ -96,23 +96,27 @@ export default function TimeslotSection({
         </LinearGradient>
       </View>
 
-      {/* Timeslots List */}
+      {/* Timeslots Grid */}
       <View style={styles.timeslotsContainer}>
-        {timeslots.map((timeslot, index) => (
-          <TimeslotCard
-            key={timeslot.id}
-            time={timeslot.time}
-            from={timeslot.from}
-            to={timeslot.to}
-            price={timeslot.price}
-            availableSeats={timeslot.availableSeats}
-            totalSeats={timeslot.totalSeats}
-            driverName={timeslot.driverName}
-            vehicleType={timeslot.vehicleType}
-            onPress={() => onTimeslotPress(timeslot)}
-            cardIndex={index}
-          />
-        ))}
+        <View style={styles.timeslotsGrid}>
+          {timeslots.map((timeslot, index) => (
+            <View key={timeslot.id} style={styles.timeslotItem}>
+              <TimeslotCard
+                time={timeslot.time}
+                from={timeslot.from}
+                to={timeslot.to}
+                price={timeslot.price}
+                availableSeats={timeslot.availableSeats}
+                totalSeats={timeslot.totalSeats}
+                driverName={timeslot.driverName}
+                vehicleType={timeslot.vehicleType}
+                onPress={() => onTimeslotPress(timeslot)}
+                cardIndex={index}
+                compact={true}
+              />
+            </View>
+          ))}
+        </View>
       </View>
 
       {/* Enhanced Empty State */}
@@ -206,6 +210,16 @@ const styles = StyleSheet.create({
   },
   timeslotsContainer: {
     paddingHorizontal: Spacing.lg,
+  },
+  timeslotsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  timeslotItem: {
+    width: '48%',
+    marginBottom: Spacing.md,
   },
   emptyStateContainer: {
     marginHorizontal: Spacing.lg,

@@ -16,6 +16,7 @@ interface TimeslotCardProps {
   vehicleType: string;
   onPress: () => void;
   cardIndex?: number;
+  compact?: boolean;
 }
 
 export default function TimeslotCard({
@@ -29,6 +30,7 @@ export default function TimeslotCard({
   vehicleType,
   onPress,
   cardIndex = 0,
+  compact = false,
 }: TimeslotCardProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
@@ -70,6 +72,49 @@ export default function TimeslotCard({
     if (hour >= 17 && hour < 20) return '🌆'; // Evening
     return '🌙'; // Night
   };
+
+  if (compact) {
+    return (
+      <TouchableOpacity
+        style={styles.compactCardContainer}
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
+        <LinearGradient
+          colors={getCardGradient(cardIndex)}
+          style={styles.compactCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          {/* Compact Header */}
+          <View style={styles.compactHeader}>
+            <Text style={styles.compactTimeIcon}>{getTimeIcon(time)}</Text>
+            <Text style={styles.compactTime}>{time}</Text>
+            <Text style={styles.compactPrice}>{CURRENCY_SYMBOL}{price}</Text>
+          </View>
+
+          {/* Compact Route */}
+          <View style={styles.compactRoute}>
+            <Text style={styles.compactFrom}>{from}</Text>
+            <Text style={styles.compactArrow}>→</Text>
+            <Text style={styles.compactTo}>{to}</Text>
+          </View>
+
+          {/* Compact Info */}
+          <View style={styles.compactInfo}>
+            <Text style={styles.compactVehicle}>
+              {getVehicleIcon(vehicleType)} {vehicleType}
+            </Text>
+            <View style={[styles.compactSeatStatus, { backgroundColor: getSeatStatusColor() + '20' }]}>
+              <Text style={[styles.compactSeatText, { color: getSeatStatusColor() }]}>
+                {availableSeats}/{totalSeats}
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  }
 
   return (
     <TouchableOpacity
@@ -134,11 +179,85 @@ export default function TimeslotCard({
 }
 
 const styles = StyleSheet.create({
+  // Regular card styles
   cardContainer: {
     marginBottom: Spacing.md,
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     ...Shadows.medium,
+  },
+  // Compact card styles
+  compactCardContainer: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.small,
+  },
+  compactCard: {
+    padding: Spacing.md,
+    minHeight: 120,
+  },
+  compactHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  compactTimeIcon: {
+    fontSize: 18,
+  },
+  compactTime: {
+    fontSize: FontSizes.md,
+    fontWeight: 'bold',
+    color: '#333',
+    flex: 1,
+    marginLeft: Spacing.xs,
+  },
+  compactPrice: {
+    fontSize: FontSizes.md,
+    fontWeight: 'bold',
+    color: '#32CD32',
+  },
+  compactRoute: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  compactFrom: {
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+  },
+  compactArrow: {
+    fontSize: FontSizes.sm,
+    color: '#666',
+    marginHorizontal: Spacing.xs,
+  },
+  compactTo: {
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    color: '#333',
+    flex: 1,
+    textAlign: 'right',
+  },
+  compactInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  compactVehicle: {
+    fontSize: FontSizes.xs,
+    color: '#666',
+    flex: 1,
+  },
+  compactSeatStatus: {
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
+  },
+  compactSeatText: {
+    fontSize: FontSizes.xs,
+    fontWeight: '600',
   },
   card: {
     padding: Spacing.lg,

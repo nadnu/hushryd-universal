@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable from '../../components/admin/DataTable';
 import StatsCard from '../../components/admin/StatsCard';
 import { useColorScheme } from '../../components/useColorScheme';
@@ -100,9 +100,6 @@ export default function AdminComplaintsScreen() {
   const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
 
-  const handleLogout = () => {
-    router.replace('/(tabs)/');
-  };
 
   const filteredComplaints = mockComplaints.filter((complaint) => {
     const matchesSearch = complaint.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -164,13 +161,7 @@ export default function AdminComplaintsScreen() {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName={mockAdmin.name}
-        adminRole={mockAdmin.role}
-        onLogout={handleLogout}
-      />
-
+    <AdminLayout title="Customer Complaints" currentPage="complaints">
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View>
@@ -371,7 +362,7 @@ export default function AdminComplaintsScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </AdminLayout>
   );
 }
 

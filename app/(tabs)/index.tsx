@@ -4,44 +4,14 @@ import SOSButton from '@/components/SOSButton';
 import TimeslotFilter from '@/components/TimeslotFilter';
 import TimeslotSection from '@/components/TimeslotSection';
 import { useColorScheme } from '@/components/useColorScheme';
-import Colors, { CURRENCY_SYMBOL } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { BorderRadius, FontSizes, Shadows, Spacing } from '@/constants/Design';
-import { afternoonTimeslots, earlyMorningTimeslots, eveningTimeslots, lateEveningTimeslots, lateMorningTimeslots, morningTimeslots, nightTimeslots, popularRoutes, popularTimeslots } from '@/services/mockData';
+import { afternoonTimeslots, earlyMorningTimeslots, eveningTimeslots, lateEveningTimeslots, lateMorningTimeslots, morningTimeslots, nightTimeslots, popularTimeslots } from '@/services/mockData';
 import { SearchParams } from '@/types/models';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// Helper functions for popular routes
-const getRouteIcon = (from: string, to: string) => {
-  const routeKey = `${from}-${to}`.toLowerCase();
-  
-  if (routeKey.includes('hyderabad')) return '🏙️';
-  if (routeKey.includes('bangalore')) return '🌆';
-  if (routeKey.includes('chennai')) return '🏛️';
-  if (routeKey.includes('visakhapatnam')) return '🌊';
-  if (routeKey.includes('vijayawada')) return '🌾';
-  if (routeKey.includes('warangal')) return '🏰';
-  if (routeKey.includes('tirupati')) return '🕉️';
-  
-  return '🚗';
-};
-
-const getRouteGradient = (index: number) => {
-  const gradients = [
-    ['#32CD32', '#228B22', '#1E7A1E'], // Green
-    ['#FF8C00', '#FF6C00', '#FF5500'], // Orange
-    ['#00D4FF', '#00AFF5', '#0090D9'], // Blue
-    ['#8A2BE2', '#7B1FA2', '#6A1B9A'], // Purple
-    ['#FF69B4', '#FF1493', '#DC143C'], // Pink
-    ['#20B2AA', '#008B8B', '#006666'], // Teal
-    ['#FFD700', '#FFA500', '#FF8C00'], // Gold
-    ['#9370DB', '#8A2BE2', '#7B1FA2'], // Violet
-  ];
-  
-  return gradients[index % gradients.length];
-};
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -99,19 +69,6 @@ export default function HomeScreen() {
     }
   }, [selectedTimeslotFilter]);
 
-  const handlePopularRoute = (from: string, to: string) => {
-    console.log('Popular route clicked:', { from, to, type: selectedType });
-    router.push({
-      pathname: '/search',
-      params: {
-        from,
-        to,
-        date: new Date().toISOString().split('T')[0],
-        passengers: 1,
-        type: selectedType,
-      },
-    });
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -207,62 +164,99 @@ export default function HomeScreen() {
           onViewAllPress={handleViewAllTimeslots}
         />
 
-        {/* Popular Routes */}
-        <View style={styles.popularSection}>
-          <View style={styles.popularHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular routes</Text>
+        {/* Business Model Section */}
+        <View style={styles.businessSection}>
+          <View style={styles.businessHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>How HushRyd Works</Text>
             <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-              Popular routes across AP & Telangana
+              Connecting communities through smart, affordable transportation
             </Text>
           </View>
           
-          <View style={styles.popularGrid}>
-            {popularRoutes.slice(0, 8).map((route, index) => {
-              const routeIcon = getRouteIcon(route.from, route.to);
-              const routeGradient = getRouteGradient(index);
-              
-              return (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.popularCardContainer}
-                  onPress={() => handlePopularRoute(route.from, route.to)}
-                  activeOpacity={0.8}
-                >
-                <LinearGradient
-                  colors={routeGradient}
-                  style={styles.popularCard}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <View style={styles.popularCardContent}>
-                    <View style={styles.popularCardHeader}>
-                      <View style={styles.popularIconContainer}>
-                        <Text style={styles.popularIcon}>{routeIcon}</Text>
-                      </View>
-                      <View style={styles.popularBadge}>
-                        <Text style={styles.popularBadgeText}>Popular</Text>
-                      </View>
-                    </View>
-                    
-                    <View style={styles.popularRouteInfo}>
-                      <Text style={styles.popularFrom}>{route.from}</Text>
-                      <View style={styles.popularArrowContainer}>
-                        <Text style={styles.popularArrow}>→</Text>
-                      </View>
-                      <Text style={styles.popularTo}>{route.to}</Text>
-                    </View>
-                    
-                    <View style={styles.popularPriceContainer}>
-                      <Text style={styles.popularPriceLabel}>Starting from</Text>
-                      <Text style={styles.popularPrice}>{CURRENCY_SYMBOL}{route.price}</Text>
-                    </View>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            );
-          })}
+          <View style={styles.businessGrid}>
+            {/* Driver Benefits */}
+            <View style={[styles.businessCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.businessCardHeader}>
+                <View style={[styles.businessIconContainer, { backgroundColor: colors.primary + '20' }]}>
+                  <Text style={styles.businessIcon}>🚗</Text>
+                </View>
+                <Text style={[styles.businessCardTitle, { color: colors.text }]}>For Drivers</Text>
+              </View>
+              <View style={styles.businessContent}>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Earn money by sharing your ride
+                </Text>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Split fuel costs with passengers
+                </Text>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Flexible scheduling
+                </Text>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Verified passenger profiles
+                </Text>
+              </View>
+            </View>
+
+            {/* Passenger Benefits */}
+            <View style={[styles.businessCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.businessCardHeader}>
+                <View style={[styles.businessIconContainer, { backgroundColor: colors.primary + '20' }]}>
+                  <Text style={styles.businessIcon}>👥</Text>
+                </View>
+                <Text style={[styles.businessCardTitle, { color: colors.text }]}>For Passengers</Text>
+              </View>
+              <View style={styles.businessContent}>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Affordable travel options
+                </Text>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Safe and verified drivers
+                </Text>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Real-time tracking
+                </Text>
+                <Text style={[styles.businessText, { color: colors.textSecondary }]}>
+                  • Easy booking process
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Business Model Stats */}
+          <View style={styles.statsSection}>
+            <Text style={[styles.statsTitle, { color: colors.text }]}>Our Impact</Text>
+            <View style={styles.statsGrid}>
+              <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.statNumber, { color: colors.primary }]}>10K+</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Happy Users</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.statNumber, { color: colors.primary }]}>500+</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Cities Connected</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.statNumber, { color: colors.primary }]}>50K+</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Rides Completed</Text>
+              </View>
+              <View style={[styles.statCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.statNumber, { color: colors.primary }]}>₹2M+</Text>
+                <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Saved on Travel</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Mission Statement */}
+          <View style={[styles.missionCard, { backgroundColor: colors.primary + '10', borderColor: colors.primary + '30' }]}>
+            <View style={styles.missionContent}>
+              <Text style={styles.missionIcon}>🎯</Text>
+              <Text style={[styles.missionTitle, { color: colors.text }]}>Our Mission</Text>
+              <Text style={[styles.missionText, { color: colors.textSecondary }]}>
+                To revolutionize inter-city travel in India by providing affordable, safe, and convenient ride-sharing solutions that connect communities and reduce transportation costs for everyone.
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
 
       {/* Features Section */}
       <View style={styles.featuresSection}>
@@ -376,101 +370,109 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.xs,
     textAlign: 'center',
   },
-  popularSection: {
+  businessSection: {
     padding: Spacing.xl,
     paddingTop: 0,
   },
-  popularHeader: {
+  businessHeader: {
     marginBottom: Spacing.lg,
   },
-  popularGrid: {
+  businessGrid: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.xl,
+  },
+  businessCard: {
+    flex: 1,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    ...Shadows.small,
+  },
+  businessCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  businessIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  businessIcon: {
+    fontSize: 24,
+  },
+  businessCardTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: '700',
+    flex: 1,
+  },
+  businessContent: {
+    flex: 1,
+  },
+  businessText: {
+    fontSize: FontSizes.sm,
+    lineHeight: 22,
+    marginBottom: Spacing.xs,
+  },
+  statsSection: {
+    marginBottom: Spacing.xl,
+  },
+  statsTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '700',
+    marginBottom: Spacing.lg,
+    textAlign: 'center',
+  },
+  statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.md,
   },
-  popularCardContainer: {
+  statCard: {
     width: '48%',
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-    ...Shadows.medium,
-  },
-  popularCard: {
     padding: Spacing.lg,
-    minHeight: 140,
-  },
-  popularCardContent: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  popularCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: Spacing.md,
-  },
-  popularIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
     alignItems: 'center',
+    ...Shadows.small,
   },
-  popularIcon: {
-    fontSize: 20,
-  },
-  popularBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.sm,
-  },
-  popularBadgeText: {
-    fontSize: FontSizes.xs,
-    fontWeight: '600',
-    color: '#333',
-  },
-  popularRouteInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  popularFrom: {
-    fontSize: FontSizes.sm,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    flex: 1,
-  },
-  popularArrowContainer: {
-    marginHorizontal: Spacing.sm,
-  },
-  popularArrow: {
-    fontSize: FontSizes.md,
-    color: 'rgba(255, 255, 255, 0.8)',
+  statNumber: {
+    fontSize: FontSizes.xxl,
     fontWeight: 'bold',
-  },
-  popularTo: {
-    fontSize: FontSizes.sm,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    flex: 1,
-    textAlign: 'right',
-  },
-  popularPriceContainer: {
-    alignItems: 'flex-start',
-  },
-  popularPriceLabel: {
-    fontSize: FontSizes.xs,
-    color: 'rgba(255, 255, 255, 0.7)',
     marginBottom: Spacing.xs,
   },
-  popularPrice: {
-    fontSize: FontSizes.lg,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  statLabel: {
+    fontSize: FontSizes.sm,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  missionCard: {
+    padding: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    ...Shadows.small,
+  },
+  missionContent: {
+    alignItems: 'center',
+  },
+  missionIcon: {
+    fontSize: 48,
+    marginBottom: Spacing.md,
+  },
+  missionTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '700',
+    marginBottom: Spacing.md,
+    textAlign: 'center',
+  },
+  missionText: {
+    fontSize: FontSizes.md,
+    lineHeight: 24,
+    textAlign: 'center',
   },
   featuresSection: {
     padding: Spacing.xl,

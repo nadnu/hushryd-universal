@@ -29,21 +29,21 @@ export default function AdminFinanceScreen() {
   const colors = Colors[colorScheme ?? 'light'];
 
   const handleLogout = () => {
-    router.replace('/(tabs)/');
+    router.replace('/(tabs)/' as any);
   };
 
   const columns = [
     { key: 'id', label: 'Transaction ID', width: 120 },
     { key: 'date', label: 'Date' },
     { key: 'type', label: 'Type' },
-    { key: 'amount', label: 'Amount', render: (txn: any) => (
-      <Text style={{ color: txn.amount >= 0 ? '#10b981' : '#ef4444', fontWeight: '600' }}>
-        {txn.amount >= 0 ? '+' : ''}{CURRENCY_SYMBOL}{Math.abs(txn.amount)}
+    { key: 'amount', label: 'Amount', render: (value: any, row: any) => (
+      <Text style={{ color: value >= 0 ? '#10b981' : '#ef4444', fontWeight: '600' }}>
+        {value >= 0 ? '+' : ''}{CURRENCY_SYMBOL}{Math.abs(value)}
       </Text>
     )},
-    { key: 'status', label: 'Status', render: (txn: any) => (
-      <View style={[styles.statusBadge, { backgroundColor: txn.status === 'completed' ? '#10b981' : '#f59e0b' }]}>
-        <Text style={styles.statusText}>{txn.status}</Text>
+    { key: 'status', label: 'Status', render: (value: any, row: any) => (
+      <View style={[styles.statusBadge, { backgroundColor: value === 'completed' ? '#10b981' : '#f59e0b' }]}>
+        <Text style={styles.statusText}>{value}</Text>
       </View>
     )},
   ];

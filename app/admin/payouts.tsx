@@ -1,7 +1,6 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable, { TableColumn } from '../../components/admin/DataTable';
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
@@ -23,12 +22,6 @@ export default function PayoutsPage() {
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [selectedPayout, setSelectedPayout] = useState<any>(null);
 
-  const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', onPress: () => router.replace('/(tabs)/') },
-    ]);
-  };
 
   const getRoleIcon = (role: string) => {
     return role === 'driver' ? '🚗' : '🚙';
@@ -153,20 +146,8 @@ export default function PayoutsPage() {
   const completedPayouts = mockPayouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName="Finance Manager"
-        adminRole="finance"
-        onLogout={handleLogout}
-      />
-
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={[styles.backText, { color: colors.text }]}>Back to Dashboard</Text>
-        </TouchableOpacity>
-
-        <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
+    <AdminLayout title="Payouts Management" currentPage="payouts">
+      <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
           <View style={styles.mainContent}>
             <View style={styles.pageHeader}>
               <View>
@@ -208,8 +189,7 @@ export default function PayoutsPage() {
               />
             </View>
           </View>
-        </ScrollView>
-      </View>
+      </ScrollView>
 
       {/* Process Payout Modal */}
       <Modal visible={showProcessModal} animationType="fade" transparent>
@@ -246,7 +226,7 @@ export default function PayoutsPage() {
           </View>
         </View>
       </Modal>
-    </View>
+    </AdminLayout>
   );
 }
 

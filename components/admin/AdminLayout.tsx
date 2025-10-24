@@ -108,7 +108,7 @@ export default function AdminLayout({ children, title, currentPage = 'dashboard'
           <ScrollView style={styles.sidebarScrollView} showsVerticalScrollIndicator={false}>
             <View style={styles.sidebarContent}>
               <View style={styles.logoSection}>
-                <HushRydLogo size="small" showBackground={false} />
+                <HushRydLogo size="small" showBackground={false} darkBackground={true} />
                 {sidebarExpanded && <Text style={styles.logoText}>HushRyd Admin</Text>}
               </View>
               

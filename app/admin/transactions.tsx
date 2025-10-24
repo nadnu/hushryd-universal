@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable, { TableColumn } from '../../components/admin/DataTable';
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
@@ -26,7 +26,7 @@ export default function TransactionsPage() {
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', onPress: () => router.replace('/(tabs)/') },
+      { text: 'Logout', onPress: () => router.replace('/(tabs)/' as any) },
     ]);
   };
 
@@ -119,8 +119,11 @@ export default function TransactionsPage() {
       key: 'actions',
       label: 'Actions',
       width: 100,
-      render: () => (
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary + '20' }]}>
+      render: (value, row) => (
+        <TouchableOpacity 
+          style={[styles.actionButton, { backgroundColor: colors.primary + '20' }]}
+          onPress={() => console.log('View transaction:', row)}
+        >
           <Text style={styles.actionButtonText}>View</Text>
         </TouchableOpacity>
       ),
@@ -136,20 +139,8 @@ export default function TransactionsPage() {
   const pendingAmount = filteredTransactions.filter(t => t.status === 'pending').reduce((sum, txn) => sum + txn.amount, 0);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AdminHeader
-        adminName="Finance Manager"
-        adminRole="finance"
-        onLogout={handleLogout}
-      />
-
-      <View style={styles.content}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={[styles.backText, { color: colors.text }]}>Back to Dashboard</Text>
-        </TouchableOpacity>
-
-        <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
+    <AdminLayout title="Transactions" currentPage="transactions">
+      <ScrollView style={styles.main} showsVerticalScrollIndicator={false}>
           <View style={styles.mainContent}>
             <View style={styles.pageHeader}>
               <View>
@@ -191,9 +182,8 @@ export default function TransactionsPage() {
               />
             </View>
           </View>
-        </ScrollView>
-      </View>
-    </View>
+      </ScrollView>
+    </AdminLayout>
   );
 }
 

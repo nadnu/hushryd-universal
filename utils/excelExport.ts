@@ -1,6 +1,6 @@
-import * as XLSX from 'xlsx';
-import { Alert, Platform } from 'react-native';
-import RNFS from 'react-native-fs';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import { Alert } from 'react-native';
 
 export interface ExcelExportOptions {
   filename: string;
@@ -13,46 +13,71 @@ export const exportToExcel = async (options: ExcelExportOptions): Promise<void> 
   try {
     const { filename, sheetName = 'Sheet1', headers, data } = options;
     
-    // Create workbook and worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
-    
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    
-    // Generate Excel file buffer
-    const excelBuffer = XLSX.write(workbook, { 
-      type: 'buffer', 
-      bookType: 'xlsx' 
-    });
-    
-    // Convert buffer to base64
-    const base64Data = excelBuffer.toString('base64');
+    // Create CSV content instead of Excel for better React Native compatibility
+    const csvContent = createCSVContent(headers, data);
     
     // Define file path
-    const fileName = `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`;
-    const filePath = Platform.OS === 'ios' 
-      ? `${RNFS.DocumentDirectoryPath}/${fileName}`
-      : `${RNFS.ExternalDirectoryPath}/${fileName}`;
+    const fileName = `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
+    const fileUri = `${FileSystem.documentDirectory}${fileName}`;
     
-    // Write file
-    await RNFS.writeFile(filePath, base64Data, 'base64');
+    // Write CSV file
+    await FileSystem.writeAsStringAsync(fileUri, csvContent, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
     
-    // Show success message
-    Alert.alert(
-      'Export Successful',
-      `Excel file saved as: ${fileName}`,
-      [{ text: 'OK' }]
-    );
+    // Check if sharing is available
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (isAvailable) {
+      await Sharing.shareAsync(fileUri);
+      Alert.alert(
+        'Export Successful',
+        `Data exported as CSV file: ${fileName}`,
+        [{ text: 'OK' }]
+      );
+    } else {
+      // Show success message
+      Alert.alert(
+        'Export Successful',
+        `CSV file saved as: ${fileName}`,
+        [{ text: 'OK' }]
+      );
+    }
     
   } catch (error) {
-    console.error('Excel export error:', error);
+    console.error('Export error:', error);
     Alert.alert(
       'Export Failed',
-      'Failed to export data to Excel. Please try again.',
+      'Failed to export data. Please try again.',
       [{ text: 'OK' }]
     );
   }
+};
+
+// Helper function to create CSV content
+const createCSVContent = (headers: string[], data: any[][]): string => {
+  // Escape CSV values
+  const escapeCSV = (value: any): string => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    const stringValue = String(value);
+    // If value contains comma, quote, or newline, wrap in quotes and escape quotes
+    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+    return stringValue;
+  };
+
+  // Create header row
+  const headerRow = headers.map(escapeCSV).join(',');
+  
+  // Create data rows
+  const dataRows = data.map(row => 
+    row.map(escapeCSV).join(',')
+  );
+  
+  // Combine header and data
+  return [headerRow, ...dataRows].join('\n');
 };
 
 // Helper function to format data for Excel export
